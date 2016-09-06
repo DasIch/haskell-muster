@@ -1,0 +1,40 @@
+name:                muster
+version:             0.1.0.0
+synopsis:            A regular expression library
+description:         Please see README.md
+homepage:            https://github.com/DasIch/haskell-muster
+license:             BSD3
+license-file:        LICENSE
+author:              Daniel Neuhäuser
+maintainer:          ich@danielneuhaeuser.de
+copyright:           2016 Daniel Neuhäuser
+category:            Text
+build-type:          Simple
+-- extra-source-files:
+cabal-version:       >=1.10
+
+library
+  hs-source-dirs:      src
+  exposed-modules:     Muster
+  build-depends:       base >= 4.7 && < 5,
+                       text >= 1.2.2.1 && < 2,
+                       QuickCheck >= 2.8.2 && < 3
+  default-language:    Haskell2010
+
+test-suite muster-test
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             Spec.hs
+  build-depends:       base,
+                       tasty,
+                       tasty-quickcheck,
+                       tasty-hunit,
+                       text,
+                       quickcheck-text,
+                       muster
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  default-language:    Haskell2010
+
+source-repository head
+  type:     git
+  location: https://github.com/DasIch/haskell-muster
