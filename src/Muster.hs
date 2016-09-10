@@ -24,71 +24,12 @@ module Muster (
     match
     ) where
 
-import GHC.Exts (IsString(..))
 
 import Data.Text (Text)
 import qualified Data.Text as T
 import Test.QuickCheck
 
-
-data Regex
-  -- | Corresponds to the empty set.
-  = None
-
-  -- | Corresponds to the set containing only the empty string.
-  | Epsilon
-  | Symbol Char
-  | Concatenation Regex Regex
-
-  -- | Zero or more occurences of the regex.
-  | KleeneStar Regex
-
-  -- | Union of the strings described by the left and right expressions.
-  | Or Regex Regex
-
-  -- | Intersection of the strings described by the left and right expressions.
-  --   In other words a string matching this regular expression has to match
-  --   both the left and right expression.
-  | And Regex Regex
-  | Not Regex
-  deriving (Eq)
-
-
-instance Show Regex where
-  show None = "None"
-  show Epsilon = "Epsilon"
-  show (Symbol x) = show [x]
-  show (Concatenation l r) =
-    if string == ""
-      then "Concatenation (" ++ show l ++ ") (" ++ show r ++ ")"
-      else case regex of
-        Just r -> "Concatenation " ++ show string ++ " (" ++ show r ++ ")"
-        Nothing -> show string
-    where
-      (string, regex) = gatherString (Concatenation l r)
-      gatherString :: Regex -> (String, Maybe Regex)
-      gatherString (Concatenation (Symbol l) (Symbol r)) = ([l, r], Nothing)
-      gatherString (Concatenation l (Symbol c)) =
-        case regex of
-            Just _ -> ("", Just (Concatenation l (Symbol c)))
-            Nothing -> (string ++ [c], Nothing)
-        where (string, regex) = gatherString l
-      gatherString (Concatenation (Symbol c) r) = (c : string, regex)
-        where (string, regex) = gatherString r
-      gatherString r = ("", Just r)
-
-  show (KleeneStar r) = "KleeneStar (" ++ show r ++ ")"
-  show (Or l r) = "Or (" ++ show l ++ ") (" ++ show r ++ ")"
-  show (And l r) = "And (" ++ show l ++ ") (" ++ show r ++ ")"
-  show (Not r) = "Not " ++ show r
-
-
-instance IsString Regex where
-  fromString (x:xs) = foldl Concatenation (Symbol x) (fmap Symbol xs)
-  fromString _ = Epsilon
-
-fromText :: Text -> Regex
-fromText = fromString . T.unpack
+import Muster.Internal.Regex
 
 
 infixl 5 <.>

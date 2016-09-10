@@ -12,60 +12,15 @@ import Data.List
 
 import Muster
 
+import Regex
+
 
 main :: IO ()
 main = defaultMain tests
 
 
 tests :: TestTree
-tests = testGroup "tests" [showTests, matchTests]
-
-
-showTests :: TestTree
-showTests = testGroup "show"
-  [ testCase "Concatenation" testShowConcatenation
-  , testCase "Concatenation (1-Symbol)" testShowConcatenationOneSymbol
-  , testCase "Concatenation (2-Symbol)" testShowConcatenationTwoSymbol
-  , testCase "Concatenation (3-Symbol)" testShowConcatenationThreeSymbol
-  , testCase "KleeneStar" testShowKleeneStar
-  , testCase "Or" testShowOr
-  , testCase "And" testShowAnd
-  , testCase "Not" testShowNot
-  ]
-
-
-testShowConcatenation :: Assertion
-testShowConcatenation =
-  show ("a" <|> "b" <.> "c" <|> "d") @?= "Concatenation (Or (\"a\") (\"b\")) (Or (\"c\") (\"d\"))"
-
-
-testShowConcatenationOneSymbol :: Assertion
-testShowConcatenationOneSymbol =
-  show ("a" <.> "b" <|> "c") @?= "Concatenation \"a\" (Or (\"b\") (\"c\"))"
-
-
-testShowConcatenationTwoSymbol :: Assertion
-testShowConcatenationTwoSymbol = show ("ab" :: Regex) @?= "\"ab\""
-
-
-testShowConcatenationThreeSymbol :: Assertion
-testShowConcatenationThreeSymbol = show ("abc" :: Regex) @?= "\"abc\""
-
-
-testShowKleeneStar :: Assertion
-testShowKleeneStar = show (KleeneStar "a") @?= "KleeneStar (\"a\")"
-
-
-testShowOr :: Assertion
-testShowOr = show ("a" <|> "b") @?= "Or (\"a\") (\"b\")"
-
-
-testShowAnd :: Assertion
-testShowAnd = show ("a" <&> "b") @?= "And (\"a\") (\"b\")"
-
-
-testShowNot :: Assertion
-testShowNot = show (Not "a") @?= "Not \"a\""
+tests = testGroup "\nMuster" [regexTests, matchTests]
 
 
 matchTests :: TestTree
