@@ -36,12 +36,12 @@ showConcatenationTests = testGroup "Concatenation"
 
 testShowConcatenationLeftSymbol :: Assertion
 testShowConcatenationLeftSymbol =
-    show (Concatenation "a" None) @?= "Concatenation \"a\" (None)"
+    show (Concatenation "a" None) @?= "Concatenation \"a\" None"
 
 
 testShowConcatenationRightSymbol :: Assertion
 testShowConcatenationRightSymbol =
-    show (Concatenation None "a") @?= "Concatenation (None) (\"a\")"
+    show (Concatenation None "a") @?= "Concatenation None \"a\""
 
 
 testShowConcatenationTwoSymbols :: Assertion
@@ -60,15 +60,15 @@ testShowConcatenationStringRightLeaning =
 
 
 testShowKleeneStar :: Assertion
-testShowKleeneStar = show (KleeneStar "a") @?= "KleeneStar (\"a\")"
+testShowKleeneStar = show (KleeneStar "a") @?= "KleeneStar \"a\""
 
 
 testShowOr :: Assertion
-testShowOr = show (Or "a" "b") @?= "Or (\"a\") (\"b\")"
+testShowOr = show (Or "a" "b") @?= "Or \"a\" \"b\""
 
 
 testShowAnd :: Assertion
-testShowAnd = show (And "a" "b") @?= "And (\"a\") (\"b\")"
+testShowAnd = show (And "a" "b") @?= "And \"a\" \"b\""
 
 
 testShowNot :: Assertion

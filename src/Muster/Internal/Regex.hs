@@ -22,19 +22,38 @@ data Regex
   deriving (Eq)
 
 
+appPrec :: Int
+appPrec = 10
+
 instance Show Regex where
-  show None = "None"
-  show Epsilon = "Epsilon"
-  show (Symbol c) = show [c]
-  show (Concatenation l r) =
+  showsPrec _ None = showString "None"
+  showsPrec _ Epsilon = showString "Epsilon"
+  showsPrec _ (Symbol c) = showString (show [c])
+  showsPrec p (Concatenation l r) =
     case gatherString (Concatenation l r) of
-      ("", Just (Concatenation l' r')) -> "Concatenation (" ++ show l' ++ ") (" ++ show r' ++ ")"
-      (string, Just r') -> "Concatenation " ++ show string ++ " (" ++ show r' ++ ")"
-      (string, Nothing) -> show string
-  show (KleeneStar r) = "KleeneStar (" ++ show r ++ ")"
-  show (Or l r) = "Or (" ++ show l ++ ") (" ++ show r ++ ")"
-  show (And l r) = "And (" ++ show l ++ ") (" ++ show r ++ ")"
-  show (Not r) = "Not " ++ show r
+      ("", Just _) ->
+        showParen (p > appPrec) $
+        showString "Concatenation " . showsPrec (appPrec + 1) l . showChar ' ' .
+                                      showsPrec (appPrec + 1) r
+      (string, Just r') ->
+        showParen (p > appPrec) $
+        showString "Concatenation " . showString (show string) . showChar ' ' .
+                                      showsPrec (appPrec + 1) r'
+      (string, Nothing) -> showString (show string)
+  showsPrec p (KleeneStar r) =
+    showParen (p > appPrec) $
+    showString "KleeneStar " . showsPrec (appPrec + 1) r
+  showsPrec p (Or l r) =
+    showParen (p > appPrec) $
+    showString "Or " . showsPrec (appPrec + 1) l . showChar ' ' .
+                       showsPrec (appPrec + 1) r
+  showsPrec p (And l r) =
+    showParen (p > appPrec) $
+    showString "And " . showsPrec (appPrec + 1) l . showChar ' ' .
+                        showsPrec (appPrec + 1) r
+  showsPrec p (Not r) =
+    showParen (p > appPrec) $
+    showString "Not " . showsPrec (appPrec + 1) r
 
 
 gatherString :: Regex -> (String, Maybe Regex)
