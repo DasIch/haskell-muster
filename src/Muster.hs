@@ -12,7 +12,7 @@ using derivatives.
 
 -}
 module Muster (
-    Regex(..),
+    Regex(Symbol),
     fromString,
     fromText,
     (<.>),
@@ -20,44 +20,19 @@ module Muster (
     (<&>),
     many,
     many1,
+    not,
     derivative,
     match
     ) where
 
+import Prelude hiding (not)
+import qualified Data.Bool as B
 
 import Data.Text (Text)
 import qualified Data.Text as T
 import Test.QuickCheck
 
 import Muster.Internal.Regex
-
-
-infixl 5 <.>
-
--- | 'Concatenation' operator.
-(<.>) :: Regex -> Regex -> Regex
-(<.>) = Concatenation
-
-
-infixl 6 <|>, <&>
-
--- | 'Or' operator.
-(<|>) :: Regex -> Regex -> Regex
-(<|>) = Or
-
--- | 'And' operator.
-(<&>) :: Regex -> Regex -> Regex
-(<&>) = And
-
-
--- | Alias for the 'KleeneStar' constructor.
-many :: Regex -> Regex
-many = KleeneStar
-
-
--- | One or more occurrences.
-many1 :: Regex -> Regex
-many1 r = Concatenation r (KleeneStar r)
 
 
 isNullable :: Regex -> Bool
@@ -68,7 +43,7 @@ isNullable (Concatenation l r) = isNullable l && isNullable r
 isNullable (KleeneStar _) = True
 isNullable (Or l r) = isNullable l || isNullable r
 isNullable (And l r) = isNullable l && isNullable r
-isNullable (Not o) = not $ isNullable o
+isNullable (Not o) = B.not $ isNullable o
 
 
 derivative' :: Char -> Regex -> Regex

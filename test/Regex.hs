@@ -4,7 +4,7 @@ module Regex where
 import Test.Tasty
 import Test.Tasty.HUnit
 
-import Muster
+import Muster.Internal.Regex
 
 
 regexTests :: TestTree
@@ -98,5 +98,5 @@ testTwoCharString = fromString "ab" @?= Concatenation (Symbol 'a') (Symbol 'b')
 
 testThreeCharString :: Assertion
 testThreeCharString = fromString "abc" @?=
-  Concatenation (Concatenation (Symbol 'a') (Symbol 'b'))
-                (Symbol 'c')
+  Concatenation (Symbol 'a')
+                (Concatenation (Symbol 'b') (Symbol 'c'))

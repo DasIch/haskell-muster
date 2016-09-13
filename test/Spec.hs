@@ -2,13 +2,17 @@
 
 module Main where
 
+import Prelude hiding (not)
+import qualified Data.Bool as B
+import Data.List
+
 import Test.Tasty
 import Test.Tasty.QuickCheck
 import Test.Tasty.HUnit
+
 import Data.Text (Text)
 import Data.Text.Arbitrary
 import qualified Data.Text as T
-import Data.List
 
 import Muster
 
@@ -42,7 +46,7 @@ propMatchSymbol c = match (Symbol c) (T.singleton c)
 
 
 propNotMatchSymbol :: Char -> Char -> Property
-propNotMatchSymbol a b = a /= b ==> not (match (Symbol a) (T.singleton b))
+propNotMatchSymbol a b = a /= b ==> B.not (match (Symbol a) (T.singleton b))
 
 
 propMatchText :: Text -> Bool
@@ -50,7 +54,7 @@ propMatchText text = match (fromText text) text
 
 
 propNotMatchText :: Text -> Text -> Property
-propNotMatchText a b = a /= b ==> not (match (fromText a) b)
+propNotMatchText a b = a /= b ==> B.not (match (fromText a) b)
 
 
 propMatchMany :: Property
@@ -80,7 +84,7 @@ propMatchAnd :: Char -> Char -> Bool
 propMatchAnd a b =
   if a == b
     then match regex a' && match regex b'
-    else not (match regex a' || match regex b')
+    else B.not (match regex a' || match regex b')
   where a' = T.singleton a
         b' = T.singleton b
         regex = Symbol a <&> Symbol b
@@ -89,5 +93,5 @@ propMatchAnd a b =
 propMatchNot :: Text -> Text -> Bool
 propMatchNot a b =
   if match (fromText a) b
-    then not $ match (Not (fromText a)) b
-    else match (Not (fromText a)) b
+    then B.not $ match (not (fromText a)) b
+    else match (not (fromText a)) b

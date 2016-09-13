@@ -1,9 +1,13 @@
 module Muster.Internal.Regex (
   Regex(..),
   fromString,
-  fromText
+  fromText,
+  (<.>), (<|>), (<&>),
+  many, many1,
+  not
   ) where
 
+import Prelude hiding (not)
 import GHC.Exts (IsString (..))
 
 import Data.Text (Text)
@@ -19,7 +23,7 @@ data Regex
   | Or Regex Regex
   | And Regex Regex
   | Not Regex
-  deriving (Eq)
+  deriving (Eq, Ord)
 
 
 appPrec :: Int
@@ -60,7 +64,7 @@ gatherString :: Regex -> (String, Maybe Regex)
 gatherString (Concatenation (Symbol lc) (Symbol rc)) = ([lc, rc], Nothing)
 gatherString (Concatenation l (Symbol rc)) =
   case gatherString l of
-    (string, Just l') -> (string, Just (Concatenation l' (Symbol rc)))
+    (string, Just l') -> (string, Just (l' <.> Symbol rc))
     (string, Nothing) -> (string ++ [rc], Nothing)
 gatherString (Concatenation (Symbol lc) r) =
   (lc : string, regex)
@@ -69,9 +73,64 @@ gatherString r = ("", Just r)
 
 
 instance IsString Regex where
-  fromString (c:cs) = foldl Concatenation (Symbol c) (fmap Symbol cs)
+  fromString (c:cs) = foldl (<.>) (Symbol c) (fmap Symbol cs)
   fromString [] = Epsilon
 
 
 fromText :: Text -> Regex
 fromText = fromString . T.unpack
+
+
+infix 5 <.>
+
+(<.>) :: Regex -> Regex -> Regex
+(Concatenation r s) <.> t = r <.> (s <.> t)
+None <.> _ = None
+_ <.> None = None
+Epsilon <.> r = r
+r <.> Epsilon = r
+r <.> s = Concatenation r s
+
+
+infix 6 <|>
+
+(<|>) :: Regex -> Regex -> Regex
+(Or r s) <|> t = r <|> (s <|> t)
+None <|> r = r
+r <|> None = r
+(Not None) <|> r = Not None
+r <|> (Not None) = Not None
+r <|> s
+  | r == s = r
+  | r < s = Or r s
+  | r > s = Or s r
+
+
+infix 6 <&>
+
+(<&>) :: Regex -> Regex -> Regex
+(And r s) <&> t = r <&> (s <&> t)
+None <&> r = None
+r <&> None = None
+(Not None) <&> r = r
+r <&> (Not None) = r
+r <&> s
+  | r == s = r
+  | r < s = And r s
+  | r > s = And s r
+
+
+many :: Regex -> Regex
+many (KleeneStar r) = KleeneStar r
+many Epsilon = Epsilon
+many None = Epsilon
+many r = KleeneStar r
+
+
+many1 :: Regex -> Regex
+many1 r = r <.> many r
+
+
+not :: Regex -> Regex
+not (Not r) = Not r
+not r = Not r
