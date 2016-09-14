@@ -44,7 +44,7 @@ instance Show Regex where
         showString (show string) . showString " <.> " .
         showsPrec (concatPrec + 1) r'
       (string, Nothing) -> showString (show string)
-    where concatPrec = 5
+    where concatPrec = 6
   showsPrec p (KleeneStar r) =
     showParen (p > appPrec) $
     showString "many " . showsPrec (appPrec + 1) r
@@ -52,12 +52,12 @@ instance Show Regex where
     showParen (p > orPrec) $
     showsPrec (orPrec + 1) l . showString " <|> " .
     showsPrec (orPrec + 1) r
-    where orPrec = 6
+    where orPrec = 5
   showsPrec p (And l r) =
     showParen (p > andPrec) $
     showsPrec (andPrec + 1) l . showString " <&> " .
     showsPrec (andPrec + 1) r
-    where andPrec = 6
+    where andPrec = 5
   showsPrec p (Not r) =
     showParen (p > appPrec) $
     showString "not " . showsPrec (appPrec + 1) r
@@ -84,7 +84,7 @@ fromText :: Text -> Regex
 fromText = fromString . T.unpack
 
 
-infixl 5 <.>
+infixl 6 <.>
 
 (<.>) :: Regex -> Regex -> Regex
 (Concatenation r s) <.> t = r <.> (s <.> t)
@@ -95,7 +95,7 @@ r <.> Epsilon = r
 r <.> s = Concatenation r s
 
 
-infixl 6 <|>
+infixl 5 <|>
 
 (<|>) :: Regex -> Regex -> Regex
 (Or r s) <|> t = r <|> (s <|> t)
@@ -109,7 +109,7 @@ r <|> s
   | r > s = Or s r
 
 
-infixl 6 <&>
+infixl 5 <&>
 
 (<&>) :: Regex -> Regex -> Regex
 (And r s) <&> t = r <&> (s <&> t)
