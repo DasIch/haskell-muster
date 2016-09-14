@@ -4,19 +4,17 @@ module Main where
 
 import Prelude hiding (not)
 import qualified Data.Bool as B
-import Data.List
 
 import Test.Tasty
 import Test.Tasty.QuickCheck
-import Test.Tasty.HUnit
 
-import Data.Text (Text)
 import Data.Text.Arbitrary
 import qualified Data.Text as T
 
 import Muster
 
 import Regex
+import Charset
 
 
 main :: IO ()
@@ -24,7 +22,7 @@ main = defaultMain tests
 
 
 tests :: TestTree
-tests = testGroup "\nMuster" [regexTests, matchTests]
+tests = testGroup "\nMuster" [regexTests, charsetTests, matchTests]
 
 
 matchTests :: TestTree

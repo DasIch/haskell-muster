@@ -16,7 +16,8 @@ cabal-version:       >=1.10
 library
   hs-source-dirs:      src
   exposed-modules:     Muster,
-                       Muster.Internal.Regex
+                       Muster.Internal.Regex,
+                       Muster.Internal.Charset
   build-depends:       base >= 4.7 && < 5,
                        text >= 1.2.2.1 && < 2,
                        QuickCheck >= 2.8.2 && < 3
