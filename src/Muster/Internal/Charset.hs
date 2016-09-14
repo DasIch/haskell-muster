@@ -28,6 +28,7 @@ instance Eq Charset where
     case AnyOf xs `intersect` NoneOf ys of
       AnyOf xs' -> xs == xs'
       NoneOf ys' -> ys == ys'
+  (NoneOf xs) == (AnyOf ys) = AnyOf ys == NoneOf xs
   (NoneOf xs) == (NoneOf ys) = xs == ys
 
 

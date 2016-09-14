@@ -12,7 +12,8 @@ import Muster.Internal.Charset
 
 charsetTests :: TestTree
 charsetTests = testGroup "Muster.Internal.Charset"
-  [ testProperty "none" propNone
+  [ testProperty "==" propEq
+  , testProperty "none" propNone
   , testProperty "any" propAny
   , testProperty "elem" propElem
   , testProperty "insert" propInsert
@@ -20,6 +21,10 @@ charsetTests = testGroup "Muster.Internal.Charset"
   , intersectTests
   , testProperty "oneOf" propOneOf
   ]
+
+
+propEq :: Charset -> Charset -> Bool
+propEq ca cb = (ca == cb) /= (ca /= cb)
 
 
 propNone :: Char -> Bool
