@@ -31,33 +31,36 @@ appPrec = 10
 
 instance Show Regex where
   showsPrec _ None = showString "None"
-  showsPrec _ Epsilon = showString "Epsilon"
+  showsPrec _ Epsilon = showString (show "")
   showsPrec _ (Symbol c) = showString (show [c])
   showsPrec p (Concatenation l r) =
     case gatherString (Concatenation l r) of
       ("", Just _) ->
-        showParen (p > appPrec) $
-        showString "Concatenation " . showsPrec (appPrec + 1) l . showChar ' ' .
-                                      showsPrec (appPrec + 1) r
+        showParen (p > concatPrec) $
+        showsPrec (concatPrec + 1) l . showString " <.> " .
+        showsPrec (concatPrec + 1) r
       (string, Just r') ->
-        showParen (p > appPrec) $
-        showString "Concatenation " . showString (show string) . showChar ' ' .
-                                      showsPrec (appPrec + 1) r'
+        showParen (p > concatPrec) $
+        showString (show string) . showString " <.> " .
+        showsPrec (concatPrec + 1) r'
       (string, Nothing) -> showString (show string)
+    where concatPrec = 5
   showsPrec p (KleeneStar r) =
     showParen (p > appPrec) $
-    showString "KleeneStar " . showsPrec (appPrec + 1) r
+    showString "many " . showsPrec (appPrec + 1) r
   showsPrec p (Or l r) =
-    showParen (p > appPrec) $
-    showString "Or " . showsPrec (appPrec + 1) l . showChar ' ' .
-                       showsPrec (appPrec + 1) r
+    showParen (p > orPrec) $
+    showsPrec (orPrec + 1) l . showString " <|> " .
+    showsPrec (orPrec + 1) r
+    where orPrec = 6
   showsPrec p (And l r) =
-    showParen (p > appPrec) $
-    showString "And " . showsPrec (appPrec + 1) l . showChar ' ' .
-                        showsPrec (appPrec + 1) r
+    showParen (p > andPrec) $
+    showsPrec (andPrec + 1) l . showString " <&> " .
+    showsPrec (andPrec + 1) r
+    where andPrec = 6
   showsPrec p (Not r) =
     showParen (p > appPrec) $
-    showString "Not " . showsPrec (appPrec + 1) r
+    showString "not " . showsPrec (appPrec + 1) r
 
 
 gatherString :: Regex -> (String, Maybe Regex)
@@ -81,7 +84,7 @@ fromText :: Text -> Regex
 fromText = fromString . T.unpack
 
 
-infix 5 <.>
+infixl 5 <.>
 
 (<.>) :: Regex -> Regex -> Regex
 (Concatenation r s) <.> t = r <.> (s <.> t)
@@ -92,7 +95,7 @@ r <.> Epsilon = r
 r <.> s = Concatenation r s
 
 
-infix 6 <|>
+infixl 6 <|>
 
 (<|>) :: Regex -> Regex -> Regex
 (Or r s) <|> t = r <|> (s <|> t)
@@ -106,7 +109,7 @@ r <|> s
   | r > s = Or s r
 
 
-infix 6 <&>
+infixl 6 <&>
 
 (<&>) :: Regex -> Regex -> Regex
 (And r s) <&> t = r <&> (s <&> t)
