@@ -101,8 +101,8 @@ infixl 5 <|>
 (Or r s) <|> t = r <|> (s <|> t)
 None <|> r = r
 r <|> None = r
-(Not None) <|> r = Not None
-r <|> (Not None) = Not None
+(Not None) <|> _ = Not None
+_ <|> (Not None) = Not None
 r <|> s
   | r == s = r
   | r < s = Or r s
@@ -113,8 +113,8 @@ infixl 5 <&>
 
 (<&>) :: Regex -> Regex -> Regex
 (And r s) <&> t = r <&> (s <&> t)
-None <&> r = None
-r <&> None = None
+None <&> _ = None
+_ <&> None = None
 (Not None) <&> r = r
 r <&> (Not None) = r
 r <&> s
