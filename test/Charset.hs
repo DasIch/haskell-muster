@@ -1,6 +1,6 @@
 module Charset where
 
-import Prelude hiding (any, elem, notElem, intersect)
+import Prelude hiding (any, elem, notElem)
 
 import qualified Data.List as L
 
