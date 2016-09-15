@@ -14,6 +14,11 @@ success :: Property
 success = True === True
 
 
+maintainsUniqueness :: Charset -> Property
+maintainsUniqueness (AnyOf cs) = counterexample (show cs) (L.nub cs === cs)
+maintainsUniqueness (NoneOf cs) = counterexample (show cs) (L.nub cs === cs)
+
+
 charsetTests :: TestTree
 charsetTests = testGroup "Muster.Internal.Charset"
   [ testProperty "==" propEq
@@ -57,10 +62,7 @@ propInsert c cs =
 
 
 propInsertUniquenessInvariant :: Char -> Charset -> Property
-propInsertUniquenessInvariant c cs =
-  case c `insert` (c `insert` cs) of
-    AnyOf cs' -> counterexample cs' $ L.length (L.elemIndices c cs') == 1
-    NoneOf _ -> success
+propInsertUniquenessInvariant c cs = maintainsUniqueness $ c `insert` (c `insert` cs)
 
 
 removeTests :: TestTree
@@ -77,10 +79,7 @@ propRemove c cs =
 
 
 propRemoveUniquenessInvariant :: Char -> Charset -> Property
-propRemoveUniquenessInvariant c cs =
-  case c `remove` (c `remove` cs) of
-    AnyOf _ -> success
-    NoneOf cs' -> counterexample cs' $ L.length (L.elemIndices c cs') == 1
+propRemoveUniquenessInvariant c cs = maintainsUniqueness $ c `remove` (c `remove` cs)
 
 
 intersectTests :: TestTree
