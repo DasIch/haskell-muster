@@ -10,14 +10,18 @@ import Test.Tasty.QuickCheck
 import Muster.Internal.Charset
 
 
+success :: Property
+success = True === True
+
+
 charsetTests :: TestTree
 charsetTests = testGroup "Muster.Internal.Charset"
   [ testProperty "==" propEq
   , testProperty "none" propNone
   , testProperty "any" propAny
   , testProperty "elem" propElem
-  , testProperty "insert" propInsert
-  , testProperty "remove" propRemove
+  , insertTests
+  , removeTests
   , intersectTests
   , testProperty "oneOf" propOneOf
   ]
@@ -39,16 +43,44 @@ propElem :: Char -> Charset -> Bool
 propElem c cs = c `elem` cs /= c `notElem` cs
 
 
+insertTests :: TestTree
+insertTests = testGroup "insert"
+  [ testProperty "inserts element" propInsert
+  , testProperty "maintains uniqueness invariant" propInsertUniquenessInvariant
+  ]
+
+
 propInsert :: Char -> Charset -> Property
 propInsert c cs =
   c `notElem` cs ==>
   c `elem` (c `insert` cs)
 
 
+propInsertUniquenessInvariant :: Char -> Charset -> Property
+propInsertUniquenessInvariant c cs =
+  case c `insert` (c `insert` cs) of
+    AnyOf cs' -> counterexample cs' $ L.length (L.elemIndices c cs') == 1
+    NoneOf _ -> success
+
+
+removeTests :: TestTree
+removeTests = testGroup "remove"
+  [ testProperty "removes element" propRemove
+  , testProperty "maintains uniqueness invariant" propRemoveUniquenessInvariant
+  ]
+
+
 propRemove :: Char -> Charset -> Property
 propRemove c cs =
   c `elem` cs ==>
   c `notElem` (c `remove` cs)
+
+
+propRemoveUniquenessInvariant :: Char -> Charset -> Property
+propRemoveUniquenessInvariant c cs =
+  case c `remove` (c `remove` cs) of
+    AnyOf _ -> success
+    NoneOf cs' -> counterexample cs' $ L.length (L.elemIndices c cs') == 1
 
 
 intersectTests :: TestTree

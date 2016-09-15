@@ -58,14 +58,22 @@ notElem :: Char -> Charset -> Bool
 notElem c cs = not (c `elem` cs)
 
 
+insertMissing :: Ord a => a -> [a] -> [a]
+insertMissing x (y:ys)
+  | x > y     = y : insertMissing x ys
+  | x < y     = x : ys
+  | otherwise = y:ys
+insertMissing x [] = [x]
+
+
 insert :: Char -> Charset -> Charset
-insert c (AnyOf cs) = AnyOf (L.insert c cs)
+insert c (AnyOf cs) = AnyOf (insertMissing c cs)
 insert c (NoneOf cs) = NoneOf (L.delete c cs)
 
 
 remove :: Char -> Charset -> Charset
 remove c (AnyOf cs) = AnyOf (L.delete c cs)
-remove c (NoneOf cs) = NoneOf (L.insert c cs)
+remove c (NoneOf cs) = NoneOf (insertMissing c cs)
 
 
 intersect :: Charset -> Charset -> Charset
