@@ -19,6 +19,11 @@ maintainsUniqueness (AnyOf cs) = counterexample (show cs) (L.nub cs === cs)
 maintainsUniqueness (NoneOf cs) = counterexample (show cs) (L.nub cs === cs)
 
 
+maintainsOrdering :: Charset -> Property
+maintainsOrdering (AnyOf cs) = counterexample (show cs) (L.sort cs === cs)
+maintainsOrdering (NoneOf cs) = counterexample (show cs) (L.sort cs === cs)
+
+
 charsetTests :: TestTree
 charsetTests = testGroup "Muster.Internal.Charset"
   [ testProperty "==" propEq
@@ -52,6 +57,7 @@ insertTests :: TestTree
 insertTests = testGroup "insert"
   [ testProperty "inserts element" propInsert
   , testProperty "maintains uniqueness invariant" propInsertUniquenessInvariant
+  , testProperty "maintains ordering invariant" propInsertOrderInvariant
   ]
 
 
@@ -65,10 +71,15 @@ propInsertUniquenessInvariant :: Char -> Charset -> Property
 propInsertUniquenessInvariant c cs = maintainsUniqueness $ c `insert` (c `insert` cs)
 
 
+propInsertOrderInvariant :: Char -> Charset -> Property
+propInsertOrderInvariant c cs = maintainsOrdering $ c `insert` cs
+
+
 removeTests :: TestTree
 removeTests = testGroup "remove"
   [ testProperty "removes element" propRemove
   , testProperty "maintains uniqueness invariant" propRemoveUniquenessInvariant
+  , testProperty "maintains ordering invariant" propRemoveOrderInvariant
   ]
 
 
@@ -82,9 +93,14 @@ propRemoveUniquenessInvariant :: Char -> Charset -> Property
 propRemoveUniquenessInvariant c cs = maintainsUniqueness $ c `remove` (c `remove` cs)
 
 
+propRemoveOrderInvariant :: Char -> Charset -> Property
+propRemoveOrderInvariant c cs = maintainsOrdering $ c `remove` cs
+
+
 intersectTests :: TestTree
 intersectTests = testGroup "intersect"
   [ testProperty "produces intersection" propIntersect
+  , testProperty "maintains uniqueness invariant" propIntersectUniquenessInvariant
   , testProperty "maintains order invariant" propIntersectOrderInvariant
   ]
 
@@ -94,11 +110,12 @@ propIntersect c ca cb =
   (c `elem` ca && c `elem` cb) === c `elem` intersect ca cb
 
 
-propIntersectOrderInvariant :: Charset -> Charset -> Bool
-propIntersectOrderInvariant ca cb =
-  case ca `intersect` cb of
-    AnyOf xs -> xs == L.sort xs
-    NoneOf xs -> xs == L.sort xs
+propIntersectUniquenessInvariant :: Charset -> Charset -> Property
+propIntersectUniquenessInvariant ca cb = maintainsUniqueness $ ca `intersect` cb
+
+
+propIntersectOrderInvariant :: Charset -> Charset -> Property
+propIntersectOrderInvariant ca cb = maintainsOrdering $ ca `intersect` cb
 
 
 propOneOf :: Charset -> Bool
