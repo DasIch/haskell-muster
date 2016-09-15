@@ -30,7 +30,6 @@ import qualified Data.Bool as B
 
 import Data.Text (Text)
 import qualified Data.Text as T
-import Test.QuickCheck
 
 import Muster.Internal.Regex
 
