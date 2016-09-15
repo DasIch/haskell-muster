@@ -104,9 +104,9 @@ r <|> None = r
 (Not None) <|> _ = Not None
 _ <|> (Not None) = Not None
 r <|> s
-  | r == s = r
   | r < s = Or r s
   | r > s = Or s r
+  | otherwise = r
 
 
 infixl 5 <&>
@@ -118,9 +118,9 @@ _ <&> None = None
 (Not None) <&> r = r
 r <&> (Not None) = r
 r <&> s
-  | r == s = r
   | r < s = And r s
   | r > s = And s r
+  | otherwise = r
 
 
 many :: Regex -> Regex
